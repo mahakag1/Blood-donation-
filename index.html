@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blood Donation System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(to right, #ffdde1, #ee9ca7);
+        }
+        .card {
+            margin-top: 40px;
+            border-radius: 15px;
+        }
+        h2 {
+            text-align: center;
+            color: #c0392b;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2 class="mt-4">🩸 Blood Donation System</h2>
+
+    <div class="row">
+
+        <!-- LEFT SIDE -->
+        <div class="col-md-6">
+
+            <div class="card p-3 shadow">
+                <h4>Search Blood</h4>
+
+                <input type="text" id="bloodGroup" class="form-control mb-2" placeholder="Enter Blood Group">
+                <button class="btn btn-danger" onclick="searchBlood()">Search</button>
+
+                <div id="result" class="mt-3"></div>
+            </div>
+
+            <div class="card p-3 shadow mt-3">
+                <h4>Hospitals</h4>
+                <button class="btn btn-dark" onclick="loadHospitals()">Show Hospitals</button>
+                <div id="hospitals" class="mt-2"></div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="col-md-6">
+
+            <div class="card p-3 shadow">
+                <h4>Register</h4>
+
+                <input type="text" id="name" class="form-control mb-2" placeholder="Name">
+                <input type="email" id="email" class="form-control mb-2" placeholder="Email">
+                <input type="password" id="password" class="form-control mb-2" placeholder="Password">
+                <input type="text" id="blood" class="form-control mb-2" placeholder="Blood Group">
+
+                <button class="btn btn-success" onclick="register()">Register</button>
+            </div>
+
+            <div class="card p-3 shadow mt-3">
+                <h4>Login</h4>
+
+                <input type="email" id="loginEmail" class="form-control mb-2" placeholder="Email">
+                <input type="password" id="loginPassword" class="form-control mb-2" placeholder="Password">
+
+                <button class="btn btn-primary" onclick="login()">Login</button>
+            </div>
+
+            <div class="card p-3 shadow mt-3">
+                <h4>Donate Blood</h4>
+
+                <input type="number" id="donorId" class="form-control mb-2" placeholder="Donor ID">
+                <input type="number" id="hospitalId" class="form-control mb-2" placeholder="Hospital ID">
+                <input type="text" id="bloodGroupDonate" class="form-control mb-2" placeholder="Blood Group">
+                <input type="number" id="units" class="form-control mb-2" placeholder="Units">
+
+                <button class="btn btn-danger" onclick="donate()">Donate</button>
+            </div>
+
+            <div class="card p-3 shadow mt-3">
+                <h4>Check Rewards</h4>
+
+                <input type="number" id="rewardDonorId" class="form-control mb-2" placeholder="Donor ID">
+                <button class="btn btn-info" onclick="checkReward()">Check</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+// SEARCH BLOOD
+function searchBlood() {
+    const group = document.getElementById("bloodGroup").value;
+
+    fetch("http://localhost:3000/blood/" + group)
+        .then(res => res.json())
+        .then(data => {
+            let output = "";
+
+            if (data.length === 0) {
+                output = `<div class="alert alert-danger">No blood available</div>`;
+            } else {
+                data.forEach(item => {
+                    output += `<div class="alert alert-success">${item.name} - ${item.units_available} units</div>`;
+                });
+            }
+
+            document.getElementById("result").innerHTML = output;
+        });
+}
+
+// LOAD HOSPITALS
+function loadHospitals() {
+    fetch("http://localhost:3000/hospitals")
+        .then(res => res.json())
+        .then(data => {
+            let output = "";
+
+            data.forEach(h => {
+                output += `<div class="alert alert-secondary">${h.hospital_id} - ${h.name} (${h.location})</div>`;
+            });
+
+            document.getElementById("hospitals").innerHTML = output;
+        });
+}
+
+// REGISTER
+function register() {
+    fetch("http://localhost:3000/register", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            name: name.value,
+            email: email.value,
+            password: password.value,
+            blood_group: blood.value
+        })
+    })
+    .then(res => res.text())
+    .then(data => alert(data));
+}
+
+// LOGIN
+function login() {
+    fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            email: loginEmail.value,
+            password: loginPassword.value
+        })
+    })
+    .then(res => res.text())
+    .then(data => alert(data));
+}
+
+// DONATE
+function donate() {
+    fetch("http://localhost:3000/donate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            donor_id: donorId.value,
+            hospital_id: hospitalId.value,
+            blood_group: bloodGroupDonate.value,
+            units: units.value
+        })
+    })
+    .then(res => res.text())
+    .then(data => alert(data));
+}
+
+// REWARD
+function checkReward() {
+    fetch("http://localhost:3000/reward/" + rewardDonorId.value)
+        .then(res => res.text())
+        .then(data => alert(data));
+}
+
+</script>
+
+</body>
+</html>
